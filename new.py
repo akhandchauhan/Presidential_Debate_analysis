@@ -39,3 +39,27 @@ def identify_subject(tweet, refs):
 df['Trump'] = df['Tweet'].apply(lambda x: identify_subject(x, trump_handle)) 
 df['Biden'] = df['Tweet'].apply(lambda x: identify_subject(x, biden_handle))
 df.head(10)
+#3. Preprocess
+# Import stopwords
+import nltk
+from nltk.corpus import stopwords
+
+# Import textblob
+from textblob import Word, TextBlob
+nltk.download('stopwords')
+nltk.download('wordnet')
+stop_words = stopwords.words('english')
+custom_stopwords = ['RT', '#PresidentialDebate']
+def preprocess_tweets(tweet, custom_stopwords):
+    processed_tweet = tweet
+    processed_tweet.replace('[^\w\s]', '')
+    processed_tweet = " ".join(word for word in processed_tweet.split() if word not in stop_words)
+    processed_tweet = " ".join(word for word in processed_tweet.split() if word not in custom_stopwords)
+    processed_tweet = " ".join(Word(word).lemmatize() for word in processed_tweet.split())
+    return(processed_tweet)
+
+df['Processed Tweet'] = df['Tweet'].apply(lambda x: preprocess_tweets(x, custom_stopwords))
+df.head()
+print('Base review\n', df['Tweet'][0])
+print('\n------------------------------------\n')
+print('Cleaned and lemmatized review\n', df['Processed Tweet'][0])
