@@ -82,4 +82,27 @@ df['polarity'] = df['Processed Tweet'].apply(lambda x: TextBlob(x).sentiment[0])
 df['subjectivity'] = df['Processed Tweet'].apply(lambda x: TextBlob(x).sentiment[1])
 df[['Processed Tweet', 'Biden', 'Trump', 'polarity', 'subjectivity']].head()
 display(df[df['Trump']==1][['Trump','polarity','subjectivity']].groupby('Trump').agg([np.mean, np.max, np.min, np.median]))
-df[df['Biden']==1][['Biden','polarity','subjectivity']].groupby('Biden').agg([np.mean, n
+df[df['Biden']==1][['Biden','polarity','subjectivity']].groupby('Biden').agg([np.mean, np.max, np.min, np.median])
+
+
+#5. Visualise
+biden = df[df['Biden']==1][['Timestamp', 'polarity']]
+biden = biden.sort_values(by='Timestamp', ascending=True)
+biden['MA Polarity'] = biden.polarity.rolling(10, min_periods=3).mean()
+
+trump = df[df['Trump']==1][['Timestamp', 'polarity']]
+trump = trump.sort_values(by='Timestamp', ascending=True)
+trump['MA Polarity'] = trump.polarity.rolling(10, min_periods=3).mean()
+trump.head()
+repub = 'red'
+demo = 'blue'
+fig, axes = plt.subplots(2, 1, figsize=(13, 10))
+
+axes[0].plot(biden['Timestamp'], biden['MA Polarity'])
+axes[0].set_title("\n".join(["Biden Polarity"]))
+axes[1].plot(trump['Timestamp'], trump['MA Polarity'], color='red')
+axes[1].set_title("\n".join(["Trump Polarity"]))
+
+fig.suptitle("\n".join(["Presidential Debate Analysis"]), y=0.98)
+
+plt.show()
