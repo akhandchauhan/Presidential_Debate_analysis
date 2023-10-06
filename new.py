@@ -1,4 +1,6 @@
 #1. Authenticate to Twitter
+
+
 # Import tweepy to work with the twitter API
 import tweepy as tw
 
@@ -20,7 +22,10 @@ auth.set_access_token(access_token, access_token_secret)
 # Instantiate API
 api = tw.API(auth, wait_on_rate_limit=True)
 
+
 #2. Get Tweets
+
+
 hashtag = "#presidentialdebate"
 query = tw.Cursor(api.search, q=hashtag).items(1000)
 tweets = [{'Tweet':tweet.text, 'Timestamp':tweet.created_at} for tweet in query]
@@ -39,7 +44,11 @@ def identify_subject(tweet, refs):
 df['Trump'] = df['Tweet'].apply(lambda x: identify_subject(x, trump_handle)) 
 df['Biden'] = df['Tweet'].apply(lambda x: identify_subject(x, biden_handle))
 df.head(10)
+
+
 #3. Preprocess
+
+
 # Import stopwords
 import nltk
 from nltk.corpus import stopwords
@@ -63,3 +72,14 @@ df.head()
 print('Base review\n', df['Tweet'][0])
 print('\n------------------------------------\n')
 print('Cleaned and lemmatized review\n', df['Processed Tweet'][0])
+
+
+#4. Calculate Sentiment
+
+
+# Calculate polarity
+df['polarity'] = df['Processed Tweet'].apply(lambda x: TextBlob(x).sentiment[0])
+df['subjectivity'] = df['Processed Tweet'].apply(lambda x: TextBlob(x).sentiment[1])
+df[['Processed Tweet', 'Biden', 'Trump', 'polarity', 'subjectivity']].head()
+display(df[df['Trump']==1][['Trump','polarity','subjectivity']].groupby('Trump').agg([np.mean, np.max, np.min, np.median]))
+df[df['Biden']==1][['Biden','polarity','subjectivity']].groupby('Biden').agg([np.mean, n
